@@ -1,3 +1,5 @@
+"""This module contains representations of HTML inline texts."""
+
 from __future__ import annotations
 
 from enum import StrEnum
@@ -16,6 +18,14 @@ class TextType(StrEnum):
 
 
 class TextNode:
+    """Abstraction for HTML inline text elements.
+
+    Args:
+        text: The text content of the node.
+        text_type: The type of the text (e.g., bold, italic).
+        url: Optional URL for links and images.
+    """
+
     def __init__(self, text: str, text_type: TextType, url: str | None = None):
         self.text = text
         self.text_type = text_type
