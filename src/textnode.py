@@ -7,7 +7,7 @@ from typing import Any
 class TextType(StrEnum):
     """Sum Type for inline text elements."""
 
-    TEXT = "TEXT"
+    TEXT = "text"
     BOLD = "bold"
     ITALIC = "italic"
     CODE = "code"
