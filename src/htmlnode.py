@@ -65,7 +65,7 @@ class LeafNode(HTMLNode):
     def to_html(self) -> str:
         """Renders leaf node as an HTML string."""
         if self.value is None:
-            raise ValueError("Value can't be None.")
+            raise ValueError("Invalid HTML: Value can't be None.")
 
         if self.tag is None:
             return self.value
@@ -74,3 +74,33 @@ class LeafNode(HTMLNode):
 
     def __repr__(self) -> str:
         return f"LeafNode({self.tag}, {self.value}, {self.props})"
+
+
+class ParentNode(HTMLNode):
+    """An HTML Node with children.
+
+    Handles the nesting of HTML nodes inside of one another.
+
+    Args:
+        tag: HTML tag name (e.g., 'div', 'p', 'span').
+        children: a list of childs of the node.
+        props: a dictionary containing the attributes of the node,
+            where the key is the attribute name and the value its content.
+    """
+
+    def __init__(
+        self, tag: str, children: list[HTMLNode], props: dict[str, str] | None = None
+    ):
+        super().__init__(tag, children=children, props=props)
+
+    def to_html(self) -> str:
+        if not self.tag:
+            raise ValueError("Invalid HTML: Tag can't be None.")
+
+        if not self.children:
+            raise ValueError("Invalid HTML: Must have children.")
+
+        return f"<{self.tag}{self.props_to_html()}>{''.join(c.to_html() for c in self.children)}</{self.tag}>"
+
+    def __repr__(self) -> str:
+        return f"ParentNode({self.tag}, children: {self.children}, {self.props})"
