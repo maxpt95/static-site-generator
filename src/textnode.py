@@ -5,6 +5,8 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import Any
 
+from src.htmlnode import LeafNode
+
 
 class TextType(StrEnum):
     """Sum Type for inline text elements."""
@@ -13,8 +15,8 @@ class TextType(StrEnum):
     BOLD = "bold"
     ITALIC = "italic"
     CODE = "code"
-    LINKS = "links"
-    IMAGES = "images"
+    LINK = "link"
+    IMAGE = "image"
 
 
 class TextNode:
@@ -40,3 +42,25 @@ class TextNode:
 
     def __repr__(self) -> str:
         return f"TextNode({self.text}, {self.text_type}, {self.url})"
+
+
+def text_node_to_html_node(text_node: TextNode) -> LeafNode:
+    match text_node.text_type:
+        case TextType.TEXT:
+            return LeafNode(None, text_node.text)
+        case TextType.BOLD:
+            return LeafNode("b", text_node.text)
+        case TextType.ITALIC:
+            return LeafNode("i", text_node.text)
+        case TextType.CODE:
+            return LeafNode("code", text_node.text)
+        case TextType.LINK:
+            url = "" if text_node.url is None else text_node.url
+            return LeafNode("a", text_node.text, {"href": url})
+        case TextType.IMAGE:
+            url = "" if text_node.url is None else text_node.url
+            return LeafNode("img", "", props={"src": url, "alt": text_node.text})
+        case _:
+            raise ValueError(
+                f"TextNode is not of a known TextType: {text_node.text_type}"
+            )
