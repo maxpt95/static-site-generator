@@ -1,4 +1,6 @@
-"""This module contains representations of HTML inline texts."""
+"""
+This module contains representations of Markdown text, a way of conversion to HTML nodes.
+"""
 
 from __future__ import annotations
 
@@ -20,7 +22,7 @@ class TextType(StrEnum):
 
 
 class TextNode:
-    """Abstraction for HTML inline text elements.
+    """Abstraction for Markdown text.
 
     Args:
         text: The text content of the node.
