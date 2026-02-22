@@ -39,9 +39,38 @@ class HTMLNode:
 
         html_str = ""
         for k, v in self.props.items():
-            html_str += f'{k}="{v}" '
+            html_str += f' {k}="{v}"'
 
-        return html_str.rstrip()
+        return html_str
 
     def __repr__(self) -> str:
         return f"HTMLNode({self.tag}, {self.value}, {self.children}, {self.props})"
+
+
+class LeafNode(HTMLNode):
+    """A node with no children.
+
+    Args:
+        tag: HTML tag name (e.g., 'div', 'p', 'span'). If None, node is raw text.
+        value: content of the node.
+        props: a dictionary containing the attributes of the node,
+            where the key is the attribute name and the value its content.
+    """
+
+    def __init__(
+        self, tag: str | None, value: str, props: dict[str, str] | None = None
+    ):
+        super().__init__(tag=tag, value=value, props=props)
+
+    def to_html(self) -> str:
+        """Renders leaf node as an HTML string."""
+        if self.value is None:
+            raise ValueError("Value can't be None.")
+
+        if self.tag is None:
+            return self.value
+
+        return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+
+    def __repr__(self) -> str:
+        return f"LeafNode({self.tag}, {self.value}, {self.props})"
