@@ -50,6 +50,86 @@ def split_nodes_delimiter(
     return new_nodes
 
 
+def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
+    """Split a list of TextNodes by its image markdown text.
+
+    Non TEXT nodes will be added to the splited list as is.
+
+    Args:
+        old_nodes: a list of TextNodes to split.
+    Raises:
+        ValueError:
+            - when the node does not contain an image.
+    Returns:
+        A list of the nodes splited from the old nodes.
+    """
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
+
+        image_text_pairs = extract_markdown_images(node.text)
+
+        if not len(image_text_pairs):
+            new_nodes.append(node)
+            continue
+
+        text_to_split = node.text
+        for alt_text, url in image_text_pairs:
+            splited_text = text_to_split.split(f"![{alt_text}]({url})", 1)
+            if splited_text[0] != "":
+                new_nodes.append(TextNode(splited_text[0], node.text_type))
+            new_nodes.append(TextNode(alt_text, TextType.IMAGE, url))
+            text_to_split = splited_text[1]
+
+        # Add remaining text if the last string in the text wasn't an image.
+        if text_to_split != "":
+            new_nodes.append(TextNode(text_to_split, node.text_type))
+
+    return new_nodes
+
+
+def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
+    """Split a list of TextNodes by its link markdown text.
+
+    Non TEXT nodes will be added to the splited list as is.
+
+    Args:
+        old_nodes: a list of TextNodes to split.
+    Raises:
+        ValueError:
+            - when the node does not contain an image.
+    Returns:
+        A list of the nodes splited from the old nodes.
+    """
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
+
+        link_text_pairs = extract_markdown_links(node.text)
+
+        if not len(link_text_pairs):
+            new_nodes.append(node)
+            continue
+
+        text_to_split = node.text
+        for anchor, url in link_text_pairs:
+            splited_text = text_to_split.split(f"[{anchor}]({url})", 1)
+            if splited_text[0] != "":
+                new_nodes.append(TextNode(splited_text[0], node.text_type))
+            new_nodes.append(TextNode(anchor, TextType.LINK, url))
+            text_to_split = splited_text[1]
+
+        # Add remaining text if the last string in the text wasn't a link.
+        if text_to_split != "":
+            new_nodes.append(TextNode(text_to_split, node.text_type))
+
+    return new_nodes
+
+
 def extract_markdown_images(text: str) -> list[tuple[str, str]]:
     """Extracts image information from raw markdown text.
 

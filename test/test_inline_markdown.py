@@ -1,9 +1,11 @@
 import unittest
 
 from src.inline_markdown import (
-    split_nodes_delimiter,
     extract_markdown_images,
     extract_markdown_links,
+    split_nodes_delimiter,
+    split_nodes_image,
+    split_nodes_link,
 )
 from src.textnode import TextNode, TextType
 
@@ -66,7 +68,7 @@ class TestExtractMarkdownImages(unittest.TestCase):
         self.assertEqual(result, [])
 
     def test_extract(self):
-        text = "This is text with an ![very important gif](https://i.imgur.com/aKaOqIh.gif) and ![pugs](https://i.imgur.com/HQpYUgg.jpeg)"
+        text = "This is text with a ![very important gif](https://i.imgur.com/aKaOqIh.gif) and ![pugs](https://i.imgur.com/HQpYUgg.jpeg)"
         result = extract_markdown_images(text)
 
         expected = [
@@ -83,6 +85,62 @@ class TestExtractMarkdownImages(unittest.TestCase):
             ("pugs", "https://i.imgur.com/HQpYUgg.jpeg"),
         ]
         self.assertEqual(result, expected)
+
+
+class TestSplitNodesImage(unittest.TestCase):
+    def test_no_old_nodes(self):
+        """Test no nodes return no nodes"""
+        new_nodes = split_nodes_image([])
+        self.assertEqual(new_nodes, [])
+
+    def test_not_text_type(self):
+        """Test that if a node is not TextType text it appends it as is"""
+        node = TextNode(
+            "This *bold* text",
+            TextType.BOLD,
+        )
+
+        result = split_nodes_image([node])
+        self.assertEqual([node], result)
+
+    def test_image_not_found(self):
+        """Test that if the node doesn't contain an image it will be inserted in returned list as is."""
+        node = TextNode(
+            "This is plain text",
+            TextType.TEXT,
+        )
+
+        result = split_nodes_image([node])
+        self.assertEqual([node], result)
+
+    def test_split_nodes(self):
+        """Test all nodes are split by image"""
+        node1 = TextNode(
+            "This is text with a link to a [very important video](https://www.youtube.com/watch?v=dQw4w9WgXcQ) and ![pugs](https://i.imgur.com/HQpYUgg.jpeg)",
+            TextType.TEXT,
+        )
+        node2 = TextNode(
+            "This is text with a ![very important gif](https://i.imgur.com/aKaOqIh.gif), and some more text",
+            TextType.TEXT,
+        )
+        nodes = [node1, node2]
+
+        new_nodes = split_nodes_image(nodes)
+        expected = [
+            TextNode(
+                "This is text with a link to a [very important video](https://www.youtube.com/watch?v=dQw4w9WgXcQ) and ",
+                TextType.TEXT,
+            ),
+            TextNode("pugs", TextType.IMAGE, "https://i.imgur.com/HQpYUgg.jpeg"),
+            # Scond split
+            TextNode("This is text with a ", TextType.TEXT),
+            TextNode(
+                "very important gif", TextType.IMAGE, "https://i.imgur.com/aKaOqIh.gif"
+            ),
+            TextNode(", and some more text", TextType.TEXT),
+        ]
+
+        self.assertEqual(new_nodes, expected)
 
 
 class TestExtractMarkdownLinks(unittest.TestCase):
@@ -109,6 +167,66 @@ class TestExtractMarkdownLinks(unittest.TestCase):
             ("very important video", "https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
         ]
         self.assertEqual(result, expected)
+
+
+class TestSplitNodesLink(unittest.TestCase):
+    def test_no_old_nodes(self):
+        """Test no nodes return no nodes"""
+        new_nodes = split_nodes_link([])
+        self.assertEqual(new_nodes, [])
+
+    def test_not_text_type(self):
+        """Test that if a node is not TextType text it appends it as is"""
+        node = TextNode(
+            "This *bold* text",
+            TextType.BOLD,
+        )
+
+        result = split_nodes_link([node])
+        self.assertEqual([node], result)
+
+    def test_link_not_found(self):
+        """Test that if the node doesn't contain an link it will be inserted in returned list as is."""
+        node = TextNode(
+            "This is plain text",
+            TextType.TEXT,
+        )
+
+        result = split_nodes_link([node])
+        self.assertEqual([node], result)
+
+    def test_split_nodes(self):
+        """Test all nodes are split by image"""
+        node1 = TextNode(
+            "This is text with a ![pugs](https://i.imgur.com/HQpYUgg.jpeg) image and a link to a [very important video](https://www.youtube.com/watch?v=dQw4w9WgXcQ)",
+            TextType.TEXT,
+        )
+        node2 = TextNode(
+            "This is text to a [pugs](https://www.youtube.com/shorts/UB2NXEHNNhw) video, and some more text",
+            TextType.TEXT,
+        )
+        nodes = [node1, node2]
+
+        new_nodes = split_nodes_link(nodes)
+        expected = [
+            TextNode(
+                "This is text with a ![pugs](https://i.imgur.com/HQpYUgg.jpeg) image and a link to a ",
+                TextType.TEXT,
+            ),
+            TextNode(
+                "very important video",
+                TextType.LINK,
+                "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            ),
+            # Scond split
+            TextNode("This is text to a ", TextType.TEXT),
+            TextNode(
+                "pugs", TextType.LINK, "https://www.youtube.com/shorts/UB2NXEHNNhw"
+            ),
+            TextNode(" video, and some more text", TextType.TEXT),
+        ]
+
+        self.assertEqual(new_nodes, expected)
 
 
 if __name__ == "__main__":
