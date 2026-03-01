@@ -1,6 +1,10 @@
 import unittest
 
-from src.inline_markdown import split_nodes_delimiter, extract_markdown_images
+from src.inline_markdown import (
+    split_nodes_delimiter,
+    extract_markdown_images,
+    extract_markdown_links,
+)
 from src.textnode import TextNode, TextType
 
 
@@ -62,12 +66,47 @@ class TestExtractMarkdownImages(unittest.TestCase):
         self.assertEqual(result, [])
 
     def test_extract(self):
-        text = "This is text with an ![very important gif](https://i.imgur.com/aKaOqIh.gif) and ![pugs](https://imgur.com/gallery/blep-blep-blep-blep-JRrbFsd#HQpYUgg)"
+        text = "This is text with an ![very important gif](https://i.imgur.com/aKaOqIh.gif) and ![pugs](https://i.imgur.com/HQpYUgg.jpeg)"
         result = extract_markdown_images(text)
 
         expected = [
             ("very important gif", "https://i.imgur.com/aKaOqIh.gif"),
-            ("pugs", "https://imgur.com/gallery/blep-blep-blep-blep-JRrbFsd#HQpYUgg"),
+            ("pugs", "https://i.imgur.com/HQpYUgg.jpeg"),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_dont_extract_links(self):
+        text = "This is text wit a link to a [very important video](https://www.youtube.com/watch?v=dQw4w9WgXcQ) and ![pugs](https://i.imgur.com/HQpYUgg.jpeg)"
+        result = extract_markdown_images(text)
+
+        expected = [
+            ("pugs", "https://i.imgur.com/HQpYUgg.jpeg"),
+        ]
+        self.assertEqual(result, expected)
+
+
+class TestExtractMarkdownLinks(unittest.TestCase):
+    def test_empty_text(self):
+        result = extract_markdown_links("")
+
+        self.assertEqual(result, [])
+
+    def test_extract(self):
+        text = "This is text wit a link to a [very important video](https://www.youtube.com/watch?v=dQw4w9WgXcQ) and [pugs](https://www.youtube.com/shorts/UB2NXEHNNhw)"
+        result = extract_markdown_links(text)
+
+        expected = [
+            ("very important video", "https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
+            ("pugs", "https://www.youtube.com/shorts/UB2NXEHNNhw"),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_dont_extract_links(self):
+        text = "This is text wit a link to a [very important video](https://www.youtube.com/watch?v=dQw4w9WgXcQ) and ![pugs](https://i.imgur.com/HQpYUgg.jpeg)"
+        result = extract_markdown_links(text)
+
+        expected = [
+            ("very important video", "https://www.youtube.com/watch?v=dQw4w9WgXcQ"),
         ]
         self.assertEqual(result, expected)
 

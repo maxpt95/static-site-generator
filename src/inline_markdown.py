@@ -59,4 +59,16 @@ def extract_markdown_images(text: str) -> list[tuple[str, str]]:
         A list of tuples. Each tuple contains the alternative text
         of the image and its url.
     """
-    return re.findall(r"\[(.*?)\]\((.*?)\)", text)
+    return re.findall(r"!\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+
+
+def extract_markdown_links(text: str) -> list[tuple[str, str]]:
+    """Extracts links information from raw markdown text.
+
+    Args:
+        text: markdown text to extract the link info from.
+    Return:
+        A list of tuples. Each tuple contains the anchor text
+        of the link and its url.
+    """
+    return re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
