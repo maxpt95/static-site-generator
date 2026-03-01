@@ -35,10 +35,8 @@ def split_nodes_delimiter(
 
         split_text = node.text.split(delimiter)
 
-        if len(split_text) == 1:
-            raise ValueError(
-                f"Old node text '{node.text}' does not contain delimiter: {delimiter}"
-            )
+        if len(split_text) % 2 == 0:
+            raise ValueError("invalid markdown, formatted section not closed")
 
         for i, txt in enumerate(split_text):
             if txt == "":
@@ -78,6 +76,10 @@ def split_nodes_image(old_nodes: list[TextNode]) -> list[TextNode]:
         text_to_split = node.text
         for alt_text, url in image_text_pairs:
             splited_text = text_to_split.split(f"![{alt_text}]({url})", 1)
+
+            if len(splited_text) != 2:
+                raise ValueError("invalid markdown, image section not closed")
+
             if splited_text[0] != "":
                 new_nodes.append(TextNode(splited_text[0], node.text_type))
             new_nodes.append(TextNode(alt_text, TextType.IMAGE, url))
@@ -118,6 +120,10 @@ def split_nodes_link(old_nodes: list[TextNode]) -> list[TextNode]:
         text_to_split = node.text
         for anchor, url in link_text_pairs:
             splited_text = text_to_split.split(f"[{anchor}]({url})", 1)
+
+            if len(splited_text) != 2:
+                raise ValueError("invalid markdown, link section not closed")
+
             if splited_text[0] != "":
                 new_nodes.append(TextNode(splited_text[0], node.text_type))
             new_nodes.append(TextNode(anchor, TextType.LINK, url))
