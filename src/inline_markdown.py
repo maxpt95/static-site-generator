@@ -1,0 +1,44 @@
+from src.textnode import TextNode, TextType
+
+
+def split_nodes_delimiter(
+    old_nodes: list[TextNode], delimiter: str, text_type: TextType
+) -> list[TextNode]:
+    """Splits TextNodes into multiple nodes based on the delimiters.
+
+    Non TEXT nodes will be added to the splited list as is.
+
+    Args:
+        old_nodes: a list of TextNodes to split.
+        delimiter: the string to look for when spliting.
+        text_type: the TextType of the resulting nodes.
+    Returns:
+        A list of the nodes splited from the old nodes.
+    """
+    if not delimiter:
+        return old_nodes
+
+    if text_type not in TextType:
+        raise ValueError(f"Given text type is unknown: {text_type}")
+
+    new_nodes = []
+    for node in old_nodes:
+        if node.text_type != TextType.TEXT:
+            new_nodes.append(node)
+            continue
+
+        split_text = node.text.split(delimiter)
+
+        if len(split_text) == 1:
+            raise ValueError(
+                f"Old node text '{node.text}' does not contain delimiter: {delimiter}"
+            )
+
+        for i, txt in enumerate(split_text):
+            if txt == "":
+                continue
+            new_text_type = text_type if i % 2 != 0 else TextType.TEXT
+            new_node = TextNode(txt, new_text_type)
+            new_nodes.append(new_node)
+
+    return new_nodes
