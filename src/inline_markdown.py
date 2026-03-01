@@ -1,3 +1,5 @@
+import re
+
 from src.textnode import TextNode, TextType
 
 
@@ -46,3 +48,15 @@ def split_nodes_delimiter(
             new_nodes.append(new_node)
 
     return new_nodes
+
+
+def extract_markdown_images(text: str) -> list[tuple[str, str]]:
+    """Extracts image information from raw markdown text.
+
+    Args:
+        text: markdown text to extract the image info from.
+    Return:
+        A list of tuples. Each tuple contains the alternative text
+        of the image and its url.
+    """
+    return re.findall(r"\[(.*?)\]\((.*?)\)", text)

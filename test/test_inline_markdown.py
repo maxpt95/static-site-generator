@@ -1,6 +1,6 @@
 import unittest
 
-from src.inline_markdown import split_nodes_delimiter
+from src.inline_markdown import split_nodes_delimiter, extract_markdown_images
 from src.textnode import TextNode, TextType
 
 
@@ -53,6 +53,23 @@ class TestSplitNodesDelimiter(unittest.TestCase):
         ]
 
         self.assertEqual(new_nodes, expected)
+
+
+class TestExtractMarkdownImages(unittest.TestCase):
+    def test_empty_text(self):
+        result = extract_markdown_images("")
+
+        self.assertEqual(result, [])
+
+    def test_extract(self):
+        text = "This is text with an ![very important gif](https://i.imgur.com/aKaOqIh.gif) and ![pugs](https://imgur.com/gallery/blep-blep-blep-blep-JRrbFsd#HQpYUgg)"
+        result = extract_markdown_images(text)
+
+        expected = [
+            ("very important gif", "https://i.imgur.com/aKaOqIh.gif"),
+            ("pugs", "https://imgur.com/gallery/blep-blep-blep-blep-JRrbFsd#HQpYUgg"),
+        ]
+        self.assertEqual(result, expected)
 
 
 if __name__ == "__main__":
