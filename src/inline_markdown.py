@@ -1,3 +1,5 @@
+"""Parse markdown texts"""
+
 import re
 
 from src.textnode import TextNode, TextType
@@ -158,3 +160,14 @@ def extract_markdown_links(text: str) -> list[tuple[str, str]]:
         of the link and its url.
     """
     return re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
+
+
+def text_to_textnodes(text: str) -> list[TextNode]:
+    node = TextNode(text, TextType.TEXT)
+
+    bold_nodes = split_nodes_delimiter([node], "**", TextType.BOLD)
+    italic_nodes = split_nodes_delimiter(bold_nodes, "_", TextType.ITALIC)
+    code_nodes = split_nodes_delimiter(italic_nodes, "`", TextType.CODE)
+    image_nodes = split_nodes_image(code_nodes)
+
+    return split_nodes_link(image_nodes)

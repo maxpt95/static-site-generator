@@ -6,6 +6,7 @@ from src.inline_markdown import (
     split_nodes_delimiter,
     split_nodes_image,
     split_nodes_link,
+    text_to_textnodes,
 )
 from src.textnode import TextNode, TextType
 
@@ -13,7 +14,7 @@ from src.textnode import TextNode, TextType
 class TestSplitNodesDelimiter(unittest.TestCase):
     def setUp(self) -> None:
         self.text_node = TextNode(
-            "This is a text node with *bold* words in it, also `code`, *surprise *another bold",
+            "This is a text node with **bold** words in it, also `code`, **surprise **another bold",
             TextType.TEXT,
         )
 
@@ -29,20 +30,20 @@ class TestSplitNodesDelimiter(unittest.TestCase):
 
     def test_delimiter_not_found(self):
         """Test that an error is raised when a delimiter is not found in a node"""
-        node = TextNode("Plain", TextType.TEXT)
-        with self.assertRaisesRegex(ValueError, r"does not contain delimiter"):
+        node = TextNode("Plain *something", TextType.TEXT)
+        with self.assertRaisesRegex(ValueError, r"formatted section not closed"):
             split_nodes_delimiter([node], "*", TextType.BOLD)
 
     def test_split_nodes(self):
         """Test all nodes are split by the given delimiter"""
         italic_node = TextNode("This is an italic node", TextType.ITALIC)
         text_node2 = TextNode(
-            "Some *bold* text. *Pay attentiont!*",
+            "Some **bold** text. **Pay attentiont!**",
             TextType.TEXT,
         )
         nodes = [self.text_node, italic_node, text_node2]
 
-        new_nodes = split_nodes_delimiter(nodes, "*", TextType.BOLD)
+        new_nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
         expected = [
             TextNode("This is a text node with ", TextType.TEXT),
             TextNode("bold", TextType.BOLD),
@@ -227,6 +228,32 @@ class TestSplitNodesLink(unittest.TestCase):
         ]
 
         self.assertEqual(new_nodes, expected)
+
+
+class TestTextToTextNodes(unittest.TestCase):
+    def test_to_text_nodes(self):
+        text = "This is **text** with an _italic_ word and a `code block` and a ![pugs image](https://i.imgur.com/HQpYUgg.jpeg) and a [link to a very important video](https://www.youtube.com/watch?v=dQw4w9WgXcQ)"
+
+        nodes = text_to_textnodes(text)
+
+        expected = [
+            TextNode("This is ", TextType.TEXT),
+            TextNode("text", TextType.BOLD),
+            TextNode(" with an ", TextType.TEXT),
+            TextNode("italic", TextType.ITALIC),
+            TextNode(" word and a ", TextType.TEXT),
+            TextNode("code block", TextType.CODE),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode("pugs image", TextType.IMAGE, "https://i.imgur.com/HQpYUgg.jpeg"),
+            TextNode(" and a ", TextType.TEXT),
+            TextNode(
+                "link to a very important video",
+                TextType.LINK,
+                "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+            ),
+        ]
+
+        self.assertEqual(nodes, expected)
 
 
 if __name__ == "__main__":
