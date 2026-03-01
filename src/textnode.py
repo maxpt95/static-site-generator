@@ -47,6 +47,7 @@ class TextNode:
 
 
 def text_node_to_html_node(text_node: TextNode) -> LeafNode:
+    """Convert a TextNode into an HTMLNode."""
     match text_node.text_type:
         case TextType.TEXT:
             return LeafNode(None, text_node.text)
