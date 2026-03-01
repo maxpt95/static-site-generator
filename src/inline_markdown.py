@@ -12,6 +12,10 @@ def split_nodes_delimiter(
         old_nodes: a list of TextNodes to split.
         delimiter: the string to look for when spliting.
         text_type: the TextType of the resulting nodes.
+    Raises:
+        ValueError:
+            - when given an unknown text type.
+            - when the delimiter is not found in one of the old nodes.
     Returns:
         A list of the nodes splited from the old nodes.
     """
