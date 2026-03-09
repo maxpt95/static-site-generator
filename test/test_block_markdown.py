@@ -49,50 +49,65 @@ This is the same paragraph on a new line
 
 class TestBlockToBlockType(unittest.TestCase):
     def test_to_heading(self):
-        assert block_to_block_type("# Title 1") == BlockType.HEADING
+        self.assertEqual(block_to_block_type("# Title 1"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("## Title 2"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("### Title 3"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("#### Title 4"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("##### Title 5"), BlockType.HEADING)
+        self.assertEqual(block_to_block_type("###### Title 6"), BlockType.HEADING)
+
+    def test_to_heading_no_space(self):
+        self.assertEqual(block_to_block_type("#not a heading"), BlockType.PARAGRAPH)
 
     def test_to_code(self):
         markdown = """```
-        code block
-        ```
-        """
-        assert block_to_block_type(markdown) == BlockType.CODE
+code block
+```"""
+        self.assertEqual(block_to_block_type(markdown), BlockType.CODE)
+
+    def test_to_code_not_code(self):
+        self.assertEqual(block_to_block_type("```code block```"), BlockType.PARAGRAPH)
+
+        not_block_code = """```
+some code
+"""
+        self.assertEqual(block_to_block_type(not_block_code), BlockType.PARAGRAPH)
 
     def test_to_quote(self):
         markdown = """> This is a quote
 >with multiple lines
 """
-        assert block_to_block_type(markdown) == BlockType.QUOTE
+        self.assertEqual(block_to_block_type(markdown), BlockType.QUOTE)
 
     def test_to_unordered_list(self):
         markdown = """- This is a list
 - with items
 """
-        assert block_to_block_type(markdown) == BlockType.UNORDERED_LIST
+        self.assertEqual(block_to_block_type(markdown), BlockType.UNORDERED_LIST)
 
     def test_to_unordered_list_no_space(self):
         markdown = """-This is a list
 -with items
 """
-        assert block_to_block_type(markdown) == BlockType.PARAGRAPH
+        self.assertEqual(block_to_block_type(markdown), BlockType.PARAGRAPH)
 
     def test_to_ordered_list(self):
         markdown = """1. This is a list
 2. with items
 """
-        assert block_to_block_type(markdown) == BlockType.ORDERED_LIST
+        self.assertEqual(block_to_block_type(markdown), BlockType.ORDERED_LIST)
 
     def test_to_ordered_list_no_space(self):
         markdown = """1.This is a list
 2.with items
 """
-        assert block_to_block_type(markdown) == BlockType.PARAGRAPH
+        self.assertEqual(block_to_block_type(markdown), BlockType.PARAGRAPH)
 
     def test_to_paragraph(self):
         markdown = """This is a paragraph
 with multiple lines
 """
-        assert block_to_block_type(markdown) == BlockType.PARAGRAPH
+        self.assertEqual(block_to_block_type(markdown), BlockType.PARAGRAPH)
 
 
 if __name__ == "__main__":

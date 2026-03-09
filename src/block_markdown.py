@@ -19,9 +19,9 @@ def markdown_to_blocks(markdown: str) -> list[str]:
 
 def block_to_block_type(markdown: str) -> BlockType:
     """Determines the BlockType of a markdown block."""
-    if markdown.startswith("#"):
+    if re.match(r"^#{1,6} ", markdown) is not None:
         return BlockType.HEADING
-    elif markdown.startswith("```"):
+    elif markdown.startswith("```\n") and markdown.endswith("```"):
         return BlockType.CODE
 
     lines = markdown.splitlines()
@@ -29,6 +29,6 @@ def block_to_block_type(markdown: str) -> BlockType:
         return BlockType.QUOTE
     elif all(line.startswith("- ") for line in lines):
         return BlockType.UNORDERED_LIST
-    elif all(re.match(r"^\d*\. ", line) is not None for line in lines):
+    elif all(line.startswith(f"{i + 1}. ") for i, line in enumerate(lines)):
         return BlockType.ORDERED_LIST
     return BlockType.PARAGRAPH
