@@ -5,6 +5,8 @@ It can be block level or inline.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+
 
 class HTMLNode:
     """Abstraction of an HTML node.
@@ -21,12 +23,12 @@ class HTMLNode:
         self,
         tag: str | None = None,
         value: str | None = None,
-        children: list[HTMLNode] | None = None,
+        children: Sequence[HTMLNode] | None = None,
         props: dict[str, str] | None = None,
     ):
         self.tag = tag
         self.value = value
-        self.children = children
+        self.children = None if children is None else list(children)
         self.props = props
 
     def to_html(self) -> str:
@@ -89,9 +91,12 @@ class ParentNode(HTMLNode):
     """
 
     def __init__(
-        self, tag: str, children: list[HTMLNode], props: dict[str, str] | None = None
+        self,
+        tag: str,
+        children: Sequence[HTMLNode],
+        props: dict[str, str] | None = None,
     ):
-        super().__init__(tag, children=children, props=props)
+        super().__init__(tag=tag, children=children, props=props)
 
     def to_html(self) -> str:
         if not self.tag:
