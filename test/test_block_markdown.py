@@ -227,7 +227,7 @@ This is some markdown
 and some other content
 """
         title = extract_title(markdown)
-        self.assertTrue("With a title", title)
+        self.assertEqual("With a title", title)
 
     def test_extract_title_no_title(self):
         with self.assertRaisesRegex(

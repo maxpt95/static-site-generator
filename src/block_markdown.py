@@ -144,5 +144,5 @@ def extract_title(markdown: str) -> str:
     if header_i == -1:
         raise ValueError("markdown must contain a level 1 header")
 
-    markdown_from_title = markdown[header_i + 2]
+    markdown_from_title = markdown[header_i + 2 :]
     return markdown_from_title[: markdown_from_title.find("\n")]
