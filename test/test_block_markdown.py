@@ -5,7 +5,6 @@ from src.block_markdown import (
     block_to_block_type,
     markdown_to_blocks,
     markdown_to_html_node,
-    extract_title,
 )
 
 
@@ -215,25 +214,6 @@ the **same** even with inline stuff
             html,
             "<div><pre><code>This is text that _should_ remain\nthe **same** even with inline stuff\n</code></pre></div>",
         )
-
-
-class TestExtractTitle(unittest.TestCase):
-    def test_extract_title(self):
-        markdown = """
-This is some markdown
-
-# With a title
-
-and some other content
-"""
-        title = extract_title(markdown)
-        self.assertEqual("With a title", title)
-
-    def test_extract_title_no_title(self):
-        with self.assertRaisesRegex(
-            ValueError, "markdown must contain a level 1 header"
-        ):
-            extract_title("there is not title here")
 
 
 if __name__ == "__main__":

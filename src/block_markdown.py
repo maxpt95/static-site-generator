@@ -136,13 +136,3 @@ def paragraph_block_to_html_node(block: str) -> ParentNode:
     """Convert a paragraph block into an HTML node."""
     children = text_to_children(block.replace("\n", " "))
     return ParentNode("p", children)
-
-
-def extract_title(markdown: str) -> str:
-    """Extracts the title from the first level 1 header in a markdown."""
-    header_i = markdown.find("# ")
-    if header_i == -1:
-        raise ValueError("markdown must contain a level 1 header")
-
-    markdown_from_title = markdown[header_i + 2 :]
-    return markdown_from_title[: markdown_from_title.find("\n")]
