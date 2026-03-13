@@ -8,6 +8,24 @@ from __future__ import annotations
 from collections.abc import Sequence
 
 
+VOID_TAGS = {
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+}
+
+
 class HTMLNode:
     """Abstraction of an HTML node.
 
@@ -71,6 +89,9 @@ class LeafNode(HTMLNode):
 
         if self.tag is None:
             return self.value
+
+        if self.tag in VOID_TAGS:
+            return f"<{self.tag}{self.props_to_html()} />"
 
         return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
 
